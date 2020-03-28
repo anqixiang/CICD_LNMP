@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+  mysql:
+    image: 172.16.38.202:8010/library/mysql:8.0.18
+    container_name: lnmp_mysql
+    hostname: lnmp_mysql
+    restart: always
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    ports:
+      - 3306:3306
+    volumes:
+      - /data/docker_volume/mysql/mysql_data:/var/lib/mysql
+    networks:
+      - lnmp
+    security_opt:
+      - seccomp:unconfined
+
+  lnmp_web:
+    image: #tag#richarvey/nginx-php-fpm:latest
+    container_name: lnmp_web
+    hostname: lnmp_web
+    restart: always
+    depends_on:
+      - mysql
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - lnmp
+
+networks:
+  lnmp:
+    name: lnmp_network
+    driver: bridge
